@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:cc="http://web.resource.org/cc/"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:ns1="http://sozi.baierouge.fr"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    id="svg16223"
+    sodipodi:docname="ben_Greek_alphabet.svg"
+    viewBox="0 0 541.43 547.2"
+    sodipodi:version="0.32"
+    version="1.0"
+    inkscape:output_extension="org.inkscape.output.svg.inkscape"
+    inkscape:version="0.45.1"
+    sodipodi:docbase="C:\Documents and Settings\ryan\Desktop"
+  >
+  <sodipodi:namedview
+      id="base"
+      bordercolor="#666666"
+      inkscape:pageshadow="2"
+      inkscape:window-y="-4"
+      pagecolor="#ffffff"
+      inkscape:window-height="934"
+      inkscape:zoom="1"
+      inkscape:window-x="-4"
+      borderopacity="1.0"
+      inkscape:current-layer="svg16223"
+      inkscape:cx="418.21592"
+      inkscape:cy="302.66945"
+      inkscape:window-width="1280"
+      inkscape:pageopacity="0.0"
+      inkscape:document-units="px"
+  />
+ 
+  >
+  <g
+      id="g16523"
+      transform="matrix(.037404 0 0 -.037404 62.347 52.707)"
+    >
+    <path
+        id="path16525"
+        style="fill:currentColor"
+        d="m788 916h170l-103-463c-20-88-33.67-142-41-162 26.67-122.67 65.33-184 116-184 60 0 91 41.33 93 124h36c-2-77.33-16.2-139.83-42.5-187.5-26.33-47.667-60.83-71.5-103.5-71.5-35.33 0-61.67 14.333-79 43s-36 87.33-56 176c-69.33-146-182.67-219-340-219-107.33 0-192.67 41.833-256 125.5-63.33 83.67-95 203.5-95 359.5 0 153.33 34.67 272.67 104 358s152.67 128 250 128c68.67 0 125-24.33 169-73s83-128 117-238l61 284zm-88-392c-31.33 107.33-66.33 191.17-105 251.5s-85 90.5-139 90.5c-122 0-183-142.67-183-428 0-270.67 58.33-406 175-406 101.33 0 176.33 119.33 225 358l27 134z"
+    />
+  </g
+
+
+  >
+  <metadata
+    >
+    <rdf:RDF
+      >
+      <cc:Work
+        >
+        <dc:format
+          >image/svg+xml</dc:format
+        >
+        <dc:type
+            rdf:resource="http://purl.org/dc/dcmitype/StillImage"
+        />
+        <cc:license
+            rdf:resource="http://creativecommons.org/licenses/publicdomain/"
+        />
+        <dc:publisher
+          >
+          <cc:Agent
+              rdf:about="http://openclipart.org/"
+            >
+            <dc:title
+              >Openclipart</dc:title
+            >
+          </cc:Agent
+          >
+        </dc:publisher
+        >
+        <dc:title
+          >Greek_alphabet</dc:title
+        >
+        <dc:date
+          >2007-07-26T10:40:41</dc:date
+        >
+        <dc:description
+          >Greek alphabet</dc:description
+        >
+        <dc:source
+          >https://openclipart.org/detail/4569/greek_alphabet-by-ben</dc:source
+        >
+        <dc:creator
+          >
+          <cc:Agent
+            >
+            <dc:title
+              >ben</dc:title
+            >
+          </cc:Agent
+          >
+        </dc:creator
+        >
+        <dc:subject
+          >
+          <rdf:Bag
+            >
+            <rdf:li
+              >alphabet</rdf:li
+            >
+            <rdf:li
+              >greek</rdf:li
+            >
+          </rdf:Bag
+          >
+        </dc:subject
+        >
+      </cc:Work
+      >
+      <cc:License
+          rdf:about="http://creativecommons.org/licenses/publicdomain/"
+        >
+        <cc:permits
+            rdf:resource="http://creativecommons.org/ns#Reproduction"
+        />
+        <cc:permits
+            rdf:resource="http://creativecommons.org/ns#Distribution"
+        />
+        <cc:permits
+            rdf:resource="http://creativecommons.org/ns#DerivativeWorks"
+        />
+      </cc:License
+      >
+    </rdf:RDF
+    >
+  </metadata
+  >
+</svg
+>
