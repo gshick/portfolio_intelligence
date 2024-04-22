@@ -51,7 +51,9 @@ ui <- fluidPage(
   
   # Open navbar page and customize the theme
   navbarPage(
-    title = "Portfolio Intelligence",
+    # title = "Portfolio Metrics",
+    title = div(img(src='header_icon.png',style="margin-top: -14px; padding-right:10px;padding-bottom:10px", height = 60), "Portfolio Metrics"),
+    windowTitle="Portfolio Metrics",
     theme = shinytheme("darkly"),
     # tags$head(tags$style(HTML('.navbar-static-top {background-color: #375A7F;}',)))
   ),
@@ -84,13 +86,20 @@ sidebarLayout(
     actionButton("equal", label = "Use Equal Weighting"),
     
     # Weights Inputs
-    textInput("weights", label = h4('Enter weights seperated by ";"'), 
+    textInput("weights", label = h4('Enter weights seperated by a ","'), 
               value = "0.00"),
     
     # Choose Benchmark
     radioButtons("benchmark", label = h4("Choose Benchmark"),
                  choices = list("S&P 500" = 1, "VIX" = 2, "Dow Jones" = 3), 
                  selected = 1),
+    # Action Buttons
+    fluidRow(
+      # Calculate Portfolio Metrics
+      actionButton("calc", label = "Calculate Metrics from Inputs"),
+      # Clear Selections
+      actionButton("reset", label = "Clear Inputs")
+    ),
     
     # Line to separate the calculator inputs from the file input section
     hr(),
@@ -106,11 +115,7 @@ sidebarLayout(
     # Action Buttons
     fluidRow(
       # Create Portfolio
-      actionButton("create", label = "Create Portfolio"),
-      # Calculate Portfolio Metrics
-      actionButton("calc", label = "Calculate Metrics"),
-      # Clear Selections
-      actionButton("reset", label = "Reset")
+      actionButton("file_calc", label = "Calculate Metrics from File"),
     ),
     
     # fluidRow(column(4, verbatimTextOutput("value"))),
@@ -156,21 +161,21 @@ server <- function(input, output, session) {
   })
   
 
-  df1 <- reactiveVal(
-    data.frame(
-      Ticker = character(0), 
-      Weight = numeric(0)
-    )
-  )
+  # df1 <- reactiveVal(
+  #   data.frame(
+  #     Ticker = character(0), 
+  #     Weight = numeric(0)
+  #   )
+  # )
   
-  observeEvent(input$ticker, {
-    newdat <- data.frame(
-      Ticker = input$ticker, 
-      Weight = as.numeric(strsplit(input$weights, split = ";")[[1]])
-    ) 
-    # df1(dplyr::bind_rows(df1(), newdat))
-    df1(newdat)
-  })
+  # observeEvent(input$ticker, {
+  #   newdat <- data.frame(
+  #     Ticker = input$ticker, 
+  #     Weight = as.numeric(strsplit(input$weights, split = ",")[[1]])
+  #   ) 
+  #   # df1(dplyr::bind_rows(df1(), newdat))
+  #   df1(newdat)
+  # })
 
   output$table1 = renderDT({
     datatable(df1(), options = list(dom = 't')) %>% 
@@ -195,12 +200,14 @@ observeEvent(input$equal, {
     updateSelectInput(session, "ticker", selected = character(0))
     
     updateTextInput(session, "weights", value = "0.00")
+    
+    # session$reload  
   })
 
-# Use equal weighting on selected portfolio
+# Upload data via a file instead of through the calculator
 ################################################################################  
   
-  output$contents <- renderTable({
+  input_file = reactive({
     inFile <- input$file
     
     if(is.null(inFile))
@@ -210,17 +217,17 @@ observeEvent(input$equal, {
     read_excel(paste(inFile$datapath, ".xlsx", sep=""), 1)
   })
 
-# Calculate portfolio metrics
+# Calculate portfolio metrics from calculator inputs
 ################################################################################
   # wts <- c(0.33, 0.33, 0.33)
   
-  df2 = reactiveVal(
-    data.frame(
-      symbol = character(0),
-      # date = integer(0),
-      Ra = numeric(0)
-    )
-  )
+  # df2 = reactiveVal(
+  #   data.frame(
+  #     symbol = character(0),
+  #     # date = integer(0),
+  #     Ra = numeric(0)
+  #   )
+  # )
   
   df3 = reactiveVal(
     data.frame(
@@ -231,11 +238,23 @@ observeEvent(input$equal, {
     )
   )
   
+  df2 <- reactiveVal()
+
+  
   
   observeEvent(input$calc, {
     
+    df2 = data.frame(
+        symbol = character(0),
+        Ra = numeric(0)
+      )
     
-    # check inputs
+    plot_tbl = data.frame()
+    
+  
+    
+# Error Handling for inputs
+################################################################################
     input_error <- dplyr::case_when(
       # !is.numeric(input$weights) ~ "Portfolio weights need to be a number",
       sum(as.numeric(strsplit(input$weights, split = ";")[[1]])) != 1 ~ "Portfolio weights must sum to 1",
@@ -249,6 +268,8 @@ observeEvent(input$equal, {
       ))
       return() # exit the function here
     }
+    
+
     
     # Calculate 
     Ra = data.frame(symbol = input$ticker) %>% 
@@ -281,7 +302,7 @@ observeEvent(input$equal, {
     Rp = Ra %>%
       tq_portfolio(assets_col  = symbol, 
                    returns_col = Ra, 
-                   weights     = as.numeric(strsplit(input$weights, split = ";")[[1]]),
+                   weights     = as.numeric(strsplit(input$weights, split = ",")[[1]]),
                    col_rename  = "Ra")
     
     # Join Portfolio returns with Benchmark Returns
@@ -311,16 +332,118 @@ observeEvent(input$equal, {
       tq_performance(Ra = Ra, Rb = Rb, performance_fun = table.CAPM)
     
     # Reactive table for metric oputput
-    df3(dplyr::bind_rows(df3(), CAPM) %>% select(-symbol, -Ra))
+    df3(dplyr::bind_rows(df3(), CAPM))
+        # %>% select(-symbol, -Ra))
 
   })
 
+
   
   output$table2 = renderDT({
-    datatable(df3() %>% select(-Alpha, -Beta, -Correlation, -TreynorRatio), options = list(dom = 't')) %>%
+    datatable(df3() %>% select(Alpha, Beta, Correlation, TreynorRatio, `Correlationp-value`, InformationRatio, TrackingError, `R-squared`), options = list(dom = 't')) %>%
       formatStyle(
         # c('symbol','Ra'),
-        names(df3() %>% select(-Alpha, -Beta, -Correlation, -TreynorRatio)),
+        names(df3() %>% select(Alpha, Beta, Correlation, TreynorRatio, `Correlationp-value`, InformationRatio, TrackingError, `R-squared`)),
+        color = 'white',
+        
+      )
+  })
+  
+  
+# Calculate portfolio metrics from file input
+################################################################################
+
+  df2 = reactiveVal(
+    data.frame(
+      symbol = character(0),
+      # date = integer(0),
+      Ra = numeric(0)
+    )
+  )
+  
+  df3 = reactiveVal(
+    data.frame(
+      symbol = character(0),
+      # date = integer(0),
+      Ra = numeric(0)
+      # Alpha = numeric(0)
+    )
+  )
+
+  observeEvent(input$file_calc, {
+    
+    # Calculate
+    Ra = data.frame(symbol = unique(input_file()$Ticker)) %>%
+      tq_get(get  = "stock.prices",
+             from = input$dates[1],
+             to   = input$dates[2]) %>%
+      group_by(symbol) %>%
+      tq_transmute(select     = adjusted,
+                   mutate_fun = periodReturn,
+                   period     = "monthly",
+                   col_rename = "Ra")
+
+    # df2(dplyr::bind_rows(df2(), Ra))
+
+    # Calculate Benchmark returns
+    Rb = data.frame(symbol = dplyr::case_when(
+      input$benchmark == 1 ~ "^GSPC",
+      input$benchmark == 2 ~ "VIX",
+      input$benchmark == 3 ~ "DJI"
+    )) %>%
+      tq_get(get  = "stock.prices",
+             from = input$dates[1],
+             to   = input$dates[2]) %>%
+      tq_transmute(select     = adjusted,
+                   mutate_fun = periodReturn,
+                   period     = "monthly",
+                   col_rename = "Rb")
+
+    # Calculate Portfolio returns
+    Rp = Ra %>%
+      tq_portfolio(assets_col  = symbol,
+                   returns_col = Ra,
+                   # weights     = as.numeric(strsplit(input$weights, split = ",")[[1]]),
+                   weights     = input_file()$Weight,
+                   col_rename  = "Ra")
+
+    # Join Portfolio returns with Benchmark Returns
+    RpRb = left_join(Rp,
+                     Rb,
+                     by = "date")
+
+    # Create table for the time series plot
+    plot_tbl = rbind(
+      RpRb %>%
+        select(date, Ra) %>%
+        mutate(symbol = "Portfolio") %>%
+        rename(value = Ra)
+      ,
+      RpRb %>%
+        select(date, Rb) %>%
+        mutate(symbol = "Benchmark") %>%
+        rename(value = Rb)
+      ,
+      Ra %>%rename(value = Ra)
+    )
+
+    df2(dplyr::bind_rows(df2(), plot_tbl))
+
+    # Calculate the CAPM metrics
+    CAPM = RpRb %>%
+      tq_performance(Ra = Ra, Rb = Rb, performance_fun = table.CAPM)
+
+    # Reactive table for metric oputput
+    df3(dplyr::bind_rows(df3(), CAPM))
+    
+  })
+  
+
+  output$table2 = renderDT({
+    datatable(df3() %>% select(Alpha, Beta, Correlation, TreynorRatio, `Correlationp-value`, InformationRatio, TrackingError, `R-squared`), options = list(dom = 't')) %>%
+      formatStyle(
+        # c('symbol','Ra'),
+        names(df3() %>% select(Alpha, Beta, Correlation, TreynorRatio, `Correlationp-value`, InformationRatio, TrackingError, `R-squared`)),
         color = 'white',
         
       )
@@ -342,7 +465,7 @@ observeEvent(input$equal, {
 
     valueBox(
       color = 'blue',
-      value = as.numeric(df3()$Alpha),
+      value = df3() %>% filter(row_number() >= (n())) %>% select(Alpha),
       subtitle = "Portfolio Alpha",
       icon = icon(name = "fa-solid fa-a", style = "color: #ffffff", lib = "font-awesome")
     )
@@ -379,7 +502,7 @@ observeEvent(input$equal, {
     
     valueBox(
       color = 'blue',
-      value = as.numeric(df3()$Beta),
+      value = df3() %>% filter(row_number() >= (n())) %>% select(Beta),
       subtitle = "Portfolio Beta",
       icon = icon(name = "fa-solid fa-b", style = "color: #ffffff", lib = "font-awesome")
     )
@@ -399,7 +522,7 @@ observeEvent(input$equal, {
     
     valueBox(
       color = 'blue',
-      value = as.numeric(df3()$Correlation),
+      value = df3() %>% filter(row_number() >= (n())) %>% select(Correlation),
       subtitle = "Correlation",
       icon = icon(name = "fa-solid fa-c", style = "color: #ffffff", lib = "font-awesome")
     )
@@ -419,7 +542,7 @@ observeEvent(input$equal, {
     
     valueBox(
       color = 'blue',
-      value = as.numeric(df3()$TreynorRatio),
+      value = df3() %>% filter(row_number() >= (n())) %>% select(TreynorRatio),
       subtitle = "Treynor Ratio",
       icon = icon(name = "fa-solid fa-t", style = "color: #ffffff", lib = "font-awesome")
     )
@@ -429,7 +552,7 @@ observeEvent(input$equal, {
 # Create chart of individual stock performance 
 ################################################################################  
 
-  output$plot <- renderPlotly({
+  output$plot = renderPlotly({
 
     # validate(
     # 
@@ -450,17 +573,28 @@ observeEvent(input$equal, {
       )
     )}
     
-      ggplotly(df2() %>%
-                 ggplot(aes(date, value, colour = symbol)) +
-                 geom_line(size = 1, alpha = .9) +
-                 theme_minimal(base_size=16) +
-                 theme(axis.title = element_blank(),
-                       plot.background  = element_rect(fill = "#222222"),
-                       panel.background = element_rect(fill = "#222222"),
-                       panel.grid       = element_blank(),
-                       legend.text      = element_text(colour = "white"),
-                       legend.title     = element_text(colour = "white"))
-      )
+    ggplotly(
+      # df2() %>%
+      ggplot(data = df2()) +
+        # ggplot(aes(date, value, colour = symbol)) +
+        geom_line(data  = . %>% filter(! symbol %in% c("Portfolio", "Benchmark")), 
+                  aes(date, value, color = symbol), size = 1, alpha = .9) +
+        geom_line(data  = . %>% filter(symbol == "Portfolio"), 
+                  aes(date, value, color = symbol), size = 1, alpha = .9, linetype = 'dotted') +
+        geom_line(data  = . %>% filter(symbol == "Benchmark"), 
+                  aes(date, value, color = symbol), size = 1, alpha = .9, linetype = 'dashed') +
+        # scale_color_manual(values = c(
+        #   'Y1' = 'darkblue',
+        #   'Y2' = 'red')) +
+        labs(color = 'Legend') +
+        theme_minimal(base_size=16) +
+        theme(axis.title = element_blank(),
+              plot.background  = element_rect(fill = "#222222"),
+              panel.background = element_rect(fill = "#222222"),
+              panel.grid       = element_blank(),
+              legend.text      = element_text(colour = "white"),
+              legend.title     = element_text(colour = "white"))
+    )
     # )
   })
   
