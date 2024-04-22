@@ -1,0 +1,41 @@
+
+/* Get a fancy font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Yusei+Magic&display=swap');
+
+
+
+
+.navbar-static-top {
+  background-color: #375A7F;
+}
+
+/* .value-box .value {
+  color: white;
+}
+
+.value-box .caption {
+  color: white;
+} */
+
+.small-box.bg-blue { 
+  background-color: #375A7F !important; color: white !important; 
+}
+
+.dropdown-menu {
+  background-color: red;
+}   
+
+/* Controls background color of the datRangeInput "to" box */
+.input-group-addon.input-group-prepend.input-group-append {
+  background-color: #464545;
+}
+
+/* .thead {
+  background-color: red;
+} */
+
+/* Change font color of data header row in datatable */
+table.dataTable thead {
+  color: white;
+}
+
